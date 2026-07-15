@@ -2,6 +2,8 @@
 description: "Refactor selected code following project conventions"
 ---
 
+# Refactor per project conventions
+
 Refactor the following code, preserving behavior exactly: $ARGUMENTS
 
 1. **Read before touching:** open the current implementation and its colocated

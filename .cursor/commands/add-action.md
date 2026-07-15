@@ -2,6 +2,8 @@
 description: "Add a new Action variant to the task board, end-to-end"
 ---
 
+# Add a new Action variant (end-to-end)
+
 Add a new action to the task board for: $ARGUMENTS
 
 Follow the golden path from `materials/architecture-brief.md` — types → reducer
@@ -28,8 +30,9 @@ Follow the golden path from `materials/architecture-brief.md` — types → redu
    Arrange–Act–Assert form: build a starting `AppState`, dispatch the new
    action through `reducer(state, creator(...))`, assert the new state shape
    AND that the original `state` object was not mutated.
-5. Run `cd app && npm test` and report the result (pass/fail plus any failing
-   test names). Do not finish while the suite is red.
+5. Run `cd app && npm test` and `cd app && npm run typecheck`; report both
+   results (pass/fail plus any failing test names). Do not finish while either
+   is red.
 
 Follow the project conventions in `.cursor/rules/` (custom store — NOT
 Redux/Zustand; named exports; immutable updates; do not touch

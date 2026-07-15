@@ -2,6 +2,8 @@
 description: "Analyze and fix a build or test error"
 ---
 
+# Analyze and fix a build or test error
+
 Analyze and fix this error: $ARGUMENTS
 
 1. **Read the full error first:** the complete compiler diagnostic or vitest
