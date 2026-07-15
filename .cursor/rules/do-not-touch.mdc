@@ -1,0 +1,32 @@
+---
+description: "Protected core: app/src/store.ts and app/src/types.ts — never modify without explicit approval"
+alwaysApply: true
+---
+
+# Do not touch — protected core
+
+## Context
+
+`app/src/store.ts` (the `createStore` dispatch/notify engine) and
+`app/src/types.ts` (`AppState`, `Task`, the `Action` union, `initialState`)
+are the contract everything else depends on. A signature or shape change here
+ripples through `reducer.ts`, `actions.ts`, `selectors.ts`, and every test.
+
+## Rule
+
+- DO NOT modify `app/src/store.ts` at all. NEVER rewrite `createStore`,
+  change the `Store` interface's public signatures
+  (`getState`/`dispatch`/`subscribe`), or replace the engine with a library.
+- The ONLY sanctioned change to `app/src/types.ts` is ADDITIVE, via the golden
+  path: append a new variant to the `Action` union, or extend the
+  `Task`/`AppState` shape for an approved feature (e.g. adding `priority` to
+  `Task`). NEVER remove or rename existing types, fields, or action `type`
+  strings.
+- Any other change to these two files requires explicit human approval in
+  chat BEFORE editing — propose the diff first, do not apply it.
+
+## How to verify
+
+1. `git diff --stat app/src/store.ts` → empty (the file was not touched).
+2. `git diff app/src/types.ts` → additive only: no removed lines that delete an existing `Action` variant, type, or `Task`/`AppState` field.
+3. `cd app && npm test` → green, proving the contract still holds.

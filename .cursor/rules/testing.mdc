@@ -1,0 +1,39 @@
+---
+description: "Testing rules: vitest, colocated *.test.ts, AAA structure, test through the public API only"
+globs: "app/**/*.test.ts"
+alwaysApply: false
+---
+
+# Testing — vitest, colocated, public API only
+
+## Context
+
+Tests are colocated `*.test.ts` files next to their unit
+(`app/src/reducer.test.ts`, `app/src/store.test.ts`,
+`app/src/lib/text.test.ts`) and run with vitest via `cd app && npm test`.
+They are the safety net that makes the do-not-touch and architecture rules
+mechanically checkable.
+
+## Rule
+
+- Use vitest ONLY; put every new test in a colocated `*.test.ts` next to the
+  module under test (a test for `app/src/selectors.ts` lives at
+  `app/src/selectors.test.ts`).
+- Structure each test as Arrange–Act–Assert: build state or `createStore()`,
+  dispatch or call the function, then assert on `getState()` or the return
+  value.
+- Test through the public API: `dispatch` + `getState`, or the exported
+  reducer/selector/lib functions. DO NOT reach into store internals or
+  re-implement reducer logic inside a test.
+- Every new `Action` variant gets at least one reducer test covering its
+  state transition.
+- Keep existing tests green. Update an exact-shape expectation (e.g.
+  `toEqual({ id, title, done: false })`) ONLY when the domain shape
+  legitimately changed (e.g. `Task` gained `priority`), and say so explicitly
+  in the PR description.
+
+## How to verify
+
+1. `cd app && npm test` → all suites pass.
+2. Every `case "..."` string in `app/src/reducer.ts` appears in at least one test in `app/src/reducer.test.ts` (grep each action `type` string).
+3. `grep -rnE "as any|\(store as" app/src/*.test.ts app/src/lib/*.test.ts` → zero matches (no poking at internals).

@@ -1,0 +1,34 @@
+---
+description: "No new npm dependencies in app/ without explicit approval — the app deliberately has zero runtime deps"
+globs: "app/**"
+alwaysApply: false
+---
+
+# Dependencies — zero runtime deps by design
+
+## Context
+
+`app/package.json` deliberately has NO `dependencies` block; its only
+devDependencies are `typescript` and `vitest`. In-house utilities live in
+`app/src/lib/text.ts`. A silently added package (a state library, lodash, a
+uuid generator) defeats the point of this dependency-free sample.
+
+## Rule
+
+- DO NOT add, upgrade, or remove entries in `app/package.json` without
+  explicit approval in chat.
+- Before reaching for a package, check what already exists: `app/src/lib/`
+  for text utilities, `app/src/selectors.ts` for derived reads,
+  `app/src/actions.ts` for action construction. Extend the in-house code
+  instead (see custom-lib.mdc).
+- If a dependency is truly justified, PROPOSE it in chat first — name, why the
+  in-house alternative is insufficient, footprint — and wait for approval.
+  NEVER just edit `package.json` or run `npm install <pkg>` on your own.
+- NEVER commit `node_modules/` or a lockfile change produced by an unapproved
+  install.
+
+## How to verify
+
+1. `git diff app/package.json` → empty, or contains no new `dependencies`/`devDependencies` entries.
+2. `app/package.json` still has no `dependencies` block and exactly `typescript` + `vitest` under `devDependencies`.
+3. `git status --short` → no `node_modules/` paths staged or committed.

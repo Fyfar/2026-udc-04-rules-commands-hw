@@ -1,0 +1,36 @@
+---
+description: "TypeScript conventions for app/: named exports only, no any/@ts-ignore, immutable updates, kebab-case files"
+globs: "app/**/*.ts"
+alwaysApply: false
+---
+
+# Conventions — TypeScript style in app/
+
+## Context
+
+`app/tsconfig.json` enables `strict` and `noUncheckedIndexedAccess`, and every
+existing module (`store.ts`, `reducer.ts`, `actions.ts`, `selectors.ts`,
+`lib/text.ts`) uses named exports and immutable data. New code must match, or
+`npm run typecheck` and the reducer's change-detection guarantees break.
+
+## Rule
+
+- Named exports ONLY. NEVER write `export default` — every module in
+  `app/src/` exports named functions and types.
+- NO `any`, NO `@ts-ignore`, NO `@ts-expect-error` to silence errors. The
+  project compiles clean under `strict` + `noUncheckedIndexedAccess` — fix the
+  type instead of suppressing it.
+- State updates in `app/src/reducer.ts` are immutable: build new objects and
+  arrays with spread, `map`, and `filter`, exactly like the existing
+  `"task/toggled"` and `"task/removed"` cases.
+- Filenames are kebab-case/lowercase (a new helper module is `date-utils.ts`,
+  never `dateUtils.ts`); types and interfaces are PascalCase (`AppState`, `Task`).
+- Use `import type { ... }` for type-only imports, as `app/src/reducer.ts` and
+  `app/src/actions.ts` already do.
+
+## How to verify
+
+1. `grep -rn "export default" app/src` → zero matches.
+2. `grep -rnE ":\s*any\b|@ts-ignore|@ts-expect-error" app/src` → zero matches.
+3. `ls app/src app/src/lib` → every filename is kebab-case/lowercase.
+4. `cd app && npm run typecheck` → exits 0 with no errors.

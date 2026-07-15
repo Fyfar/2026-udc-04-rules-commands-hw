@@ -1,0 +1,33 @@
+---
+description: "app/src/lib/text.ts is an in-house lib with a fixed 3-function API — never hallucinate helpers or substitute lodash"
+globs: "app/src/lib/**"
+alwaysApply: false
+---
+
+# Custom lib — the real text.ts API
+
+## Context
+
+`app/src/lib/text.ts` is a custom, in-house library. Its ENTIRE supported
+surface is three functions. Agents routinely hallucinate lodash-style helpers
+here; this rule documents the real API so that never compiles into the code.
+
+## Rule
+
+- The complete API of `app/src/lib/text.ts` is exactly:
+  - `slugify(input: string): string`
+  - `truncate(input: string, maxLength: number, suffix?: string): string` — `maxLength` INCLUDES the suffix
+  - `normalizeSpaces(input: string): string`
+- The following DO NOT EXIST — NEVER call or import them from `lib/text.ts`:
+  `capitalize`, `camelCase`, `deburr`, `kebabCase`, `titleCase`.
+- Need a new helper? ADD it to `app/src/lib/text.ts` with a colocated test in
+  `app/src/lib/text.test.ts` FIRST, then call it. Never call an undefined
+  function and assume it exists somewhere.
+- This is NOT lodash or underscore. DO NOT import `lodash`, `lodash-es`, or
+  `underscore` as a "replacement" for a missing helper.
+
+## How to verify
+
+1. `grep -rnE "\b(capitalize|camelCase|deburr|kebabCase|titleCase)\b" app/src` → zero matches.
+2. `grep -rnE "lodash|underscore" app/src app/package.json` → zero matches.
+3. Every function exported from `app/src/lib/text.ts` has at least one test in `app/src/lib/text.test.ts`; `cd app && npm test` → green.

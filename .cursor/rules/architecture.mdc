@@ -1,0 +1,36 @@
+---
+description: "How state changes in the task-board app: custom store + Action union + pure reducer (the golden path)"
+globs: "app/**"
+alwaysApply: false
+---
+
+# Architecture — custom store and the golden path
+
+## Context
+
+State lives in a small in-house store: `createStore()` in `app/src/store.ts`
+returns `{ getState, dispatch, subscribe }`. It is deliberately NOT
+Redux/Zustand/MobX/Jotai. The domain grows through the `Action` discriminated
+union in `app/src/types.ts` and the pure reducer in `app/src/reducer.ts` —
+see `materials/architecture-brief.md`.
+
+## Rule
+
+- State changes ONLY through `store.dispatch(action)`. NEVER mutate state
+  objects in place (`state.tasks.push(...)`, `task.done = true`).
+- To add behavior, follow the golden path in this order: add an `Action`
+  variant to the union in `app/src/types.ts` → handle it in the `switch` in
+  `app/src/reducer.ts` → add an action creator in `app/src/actions.ts` → add
+  a colocated `*.test.ts` covering the new reducer case.
+- Read state through the selectors in `app/src/selectors.ts` (`visibleTasks`,
+  `remainingCount`). DO NOT filter or inspect `state.tasks` inline in
+  consumers — add a selector instead.
+- NEVER suggest, install, or migrate to Redux, Redux Toolkit, Zustand, MobX,
+  Jotai, or any other state library. The custom store IS the architecture.
+
+## How to verify
+
+1. `grep -rE "from ['\"](redux|@reduxjs|zustand|mobx|jotai)" app/src` → zero matches.
+2. `grep -rnE "state\.tasks\.(push|pop|splice|sort)\(|\btask\.done\s*=[^=]|\btask\.title\s*=[^=]" app/src` → zero matches (immutable updates only).
+3. Every `type: "..."` variant in the `Action` union in `app/src/types.ts` has a matching `case` in `app/src/reducer.ts` and a creator in `app/src/actions.ts`.
+4. `cd app && npm test` → all vitest suites green.
