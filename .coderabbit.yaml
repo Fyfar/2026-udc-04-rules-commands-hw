@@ -43,6 +43,7 @@ reviews:
     - ".claude/**"
     - "docs/**"
     - "app/AGENTS.md"
+    - "app/CLAUDE.md"
     - "AGENTS.md"
     - "CLAUDE.md"
     - "app/src/**"
@@ -120,6 +121,11 @@ reviews:
     description:
       mode: "warning"
 
+    # Docstring coverage is irrelevant for this homework (rules/docs artifacts,
+    # a tiny sample app) — without this it fires a noisy default warning.
+    docstrings:
+      mode: "off"
+
     custom_checks:
       - mode: "warning"
         name: "Task A — rule-set (>=6 rules, each verifiable)"
@@ -149,10 +155,13 @@ reviews:
       - mode: "warning"
         name: "Task D — A/B validation"
         instructions: >
-          Check docs/ab-validation.md documents the SAME prompt run with rules ON
-          and OFF, with a concrete difference table and a conclusion (not
-          placeholders), AND cd app && npm test passes. PASS if a real difference
-          is shown; FAIL if placeholders or missing.
+          Static review only — do NOT attempt to execute the test suite (the
+          review environment has no installed dependencies). Check
+          docs/ab-validation.md documents the SAME prompt run with rules ON and
+          OFF, with a concrete difference table and a conclusion (not
+          placeholders). If the diff keeps the rules-ON code change in app/src,
+          check the diff also adds regression tests for it. PASS if a real
+          difference is shown; FAIL if placeholders or missing.
 
       - mode: "warning"
         name: "Task E — cross-tool check (bonus)"
