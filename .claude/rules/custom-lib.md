@@ -1,0 +1,33 @@
+---
+paths:
+  - "app/src/lib/**/*"
+---
+
+# Custom Lib (lib/text.ts)
+
+## Context
+
+`app/src/lib/text.ts` is an in-house text utility file, not lodash/underscore.
+It is easy for an AI to assume common lodash-style helpers exist here — they
+don't.
+
+## Rule
+
+- The **entire** supported API of `app/src/lib/text.ts` is:
+  - `slugify(input: string): string`
+  - `truncate(input: string, maxLength: number, suffix?: string): string`
+  - `normalizeSpaces(input: string): string`
+- Do NOT call or assume the existence of `capitalize`, `camelCase`, `deburr`,
+  `kebabCase`, `pad`, or any other lodash/underscore-style helper on this
+  module — they are not implemented.
+- Need something not on that list? Add it explicitly to `lib/text.ts` with its
+  own colocated test in `lib/text.test.ts` — don't import lodash instead.
+- Do not change the existing three signatures; only add new exports.
+
+## How to verify
+
+1. `grep -RE 'from "[^"]*lib/text(\.js)?"' app/src | grep -vE "slugify|truncate|normalizeSpaces"`
+   finds no import of a name outside the three above.
+2. `app/src/lib/text.ts` exports exactly `slugify`, `truncate`,
+   `normalizeSpaces`, plus any new function added with its own test.
+3. No `lodash`/`underscore` dependency appears in `app/package.json`.

@@ -1,0 +1,32 @@
+---
+paths:
+  - "app/src/**/*.ts"
+---
+
+# Module Imports
+
+## Context
+
+`app/package.json` sets `"type": "module"` and `app/tsconfig.json` uses
+`moduleResolution: "Bundler"`. TypeScript won't complain if you drop the file
+extension or use `.ts`, but every existing file imports its siblings with an
+explicit `.js` extension (e.g. `import { reducer } from "./reducer.js"` in
+`store.ts`) because that's what Node's ESM loader needs at runtime.
+
+## Rule
+
+- Relative imports between `app/src` files must use the explicit `.js`
+  extension on the compiled name, e.g. `from "./reducer.js"` —
+  never `from "./reducer"` or `from "./reducer.ts"`.
+- Use relative imports only. Do NOT add a `paths` alias to
+  `app/tsconfig.json` or import via a bare specifier like `@/reducer`.
+- Do NOT change `"type": "module"` in `app/package.json` or the
+  `module`/`moduleResolution` fields in `app/tsconfig.json`.
+
+## How to verify
+
+1. `grep -RnE "from \"\.\.?/[^\"]+\"" app/src --include="*.ts" | grep -v "\.js\""`
+   returns nothing — every relative import ends in `.js`.
+2. `grep -n "\"paths\"" app/tsconfig.json` returns nothing.
+3. `app/package.json` still has `"type": "module"` unless the user explicitly
+   asked to change it.

@@ -1,0 +1,37 @@
+# Do Not Touch
+
+## Context
+
+`app/src/store.ts` (the dispatch/notify engine) and `app/src/types.ts` (the
+`AppState`/`Action` contract) are load-bearing. Every other file — reducer,
+actions, selectors, tests — depends on their shapes staying stable. This rule
+has no `paths` frontmatter, so it loads unconditionally every session (the
+`.claude/rules/` equivalent of Cursor's `alwaysApply: true`).
+
+## Rule
+
+- Do NOT edit `app/src/store.ts` at all unless the user's request explicitly
+  names that file and asks for a change to it.
+- `app/src/types.ts` may ONLY be touched to (a) append a new variant to the
+  `Action` union, and/or (b) add a new field to `Task`/`AppState` that a new
+  `Action` variant needs — both only when the user's request describes a new
+  piece of state/behavior that requires it (e.g. "add a `priority` field").
+  This is the one standing exception to "don't touch protected files without
+  being asked by name" — the request doesn't have to say the literal string
+  "types.ts" for this exception to apply, it just has to describe new state
+  that needs a new field or union member.
+- Any OTHER kind of `types.ts` change — renaming/removing an existing field,
+  changing an existing `Action` variant's payload shape, changing
+  `createStore`/`dispatch`/`subscribe` signatures — still requires the user to
+  explicitly name `types.ts` (or `store.ts`) and ask for that specific change.
+- If a task seems to require changing these files another way, stop and ask
+  the user instead of proceeding.
+
+## How to verify
+
+1. `git diff --name-only app/src/store.ts` is empty unless the user's request
+   explicitly named `store.ts`.
+2. `git diff app/src/types.ts` (when touched) shows only: an added `Action`
+   union member, and/or an added field on `Task`/`AppState` that member's
+   payload needs. No existing field/variant renamed, removed, or retyped; no
+   change to `Store`/`createStore`/`dispatch`/`subscribe` signatures.

@@ -8,10 +8,13 @@ export type TaskId = string;
 
 export type Filter = "all" | "active" | "done";
 
+export type Priority = "low" | "normal" | "high";
+
 export interface Task {
   id: TaskId;
   title: string;
   done: boolean;
+  priority: Priority;
 }
 
 export interface AppState {
@@ -28,7 +31,8 @@ export type Action =
   | { type: "task/added"; payload: { id: TaskId; title: string } }
   | { type: "task/toggled"; payload: { id: TaskId } }
   | { type: "task/removed"; payload: { id: TaskId } }
-  | { type: "filter/set"; payload: { filter: Filter } };
+  | { type: "filter/set"; payload: { filter: Filter } }
+  | { type: "task/priority-set"; payload: { id: TaskId; priority: Priority } };
 
 export const initialState: AppState = {
   tasks: [],

@@ -1,0 +1,34 @@
+---
+paths:
+  - "app/src/**/*.ts"
+---
+
+# Selectors
+
+## Context
+
+`app/src/selectors.ts` holds pure read helpers (`visibleTasks`,
+`remainingCount`) so filtering/derivation logic for `AppState` lives in one
+place instead of being re-implemented at every call site.
+
+## Rule
+
+- Read derived data through a selector in `app/src/selectors.ts`
+  (`visibleTasks`, `remainingCount`, or a new one you add) — do not
+  re-implement the same filter/derivation inline in another file.
+- A new derived read (e.g. "tasks due today", "task by id") gets a new named,
+  exported selector in `app/src/selectors.ts` with a colocated test, not
+  scattered `state.tasks.filter(...)` calls across consumers.
+- Selectors are pure functions of `AppState` — no `store.dispatch` calls, no
+  mutation, no I/O inside a selector.
+- Only `app/src/reducer.ts` and `app/src/selectors.ts` should contain
+  `state.tasks`/`state.filter` filtering logic; everywhere else imports a
+  selector instead.
+
+## How to verify
+
+1. `grep -RnE "state\.tasks\.(filter|map|find)" app/src --include="*.ts" | grep -vE "app/src/reducer.ts|app/src/selectors.ts"`
+   returns nothing.
+2. Any new export in `app/src/selectors.ts` has a matching case in
+   `app/src/selectors.test.ts` (create the file if it doesn't exist yet).
+3. `grep -n "dispatch(" app/src/selectors.ts` returns nothing.

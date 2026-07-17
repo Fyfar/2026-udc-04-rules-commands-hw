@@ -14,7 +14,12 @@ export function reducer(state: AppState, action: Action): AppState {
         ...state,
         tasks: [
           ...state.tasks,
-          { id: action.payload.id, title: action.payload.title, done: false },
+          {
+            id: action.payload.id,
+            title: action.payload.title,
+            done: false,
+            priority: "normal",
+          },
         ],
       };
 
@@ -34,6 +39,16 @@ export function reducer(state: AppState, action: Action): AppState {
 
     case "filter/set":
       return { ...state, filter: action.payload.filter };
+
+    case "task/priority-set":
+      return {
+        ...state,
+        tasks: state.tasks.map((task) =>
+          task.id === action.payload.id
+            ? { ...task, priority: action.payload.priority }
+            : task,
+        ),
+      };
 
     default:
       return state;

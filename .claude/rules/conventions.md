@@ -1,0 +1,30 @@
+---
+paths:
+  - "app/**/*.ts"
+---
+
+# Conventions
+
+## Context
+
+The app is TypeScript-strict (`noUncheckedIndexedAccess` is on) and small on
+purpose. Consistent style keeps diffs reviewable and keeps the reducer's
+immutability guarantee intact.
+
+## Rule
+
+- Use **named exports only** — no `export default`.
+- Never use `any` or `@ts-ignore`. If a type is genuinely unknown, model it
+  with a proper type/union instead of silencing the checker.
+- State updates in `app/src/reducer.ts` must be **immutable**: build new
+  objects/arrays with spread, `.map`, `.filter`, `.concat` — never
+  `array.push`, `array.splice`, or `state.x = ...`.
+- New files use **kebab-case** filenames (e.g. `task-filters.ts`); types and
+  interfaces stay **PascalCase**.
+
+## How to verify
+
+1. `grep -R "export default" app/src` returns nothing.
+2. `grep -RE ": any|@ts-ignore" app/src` returns nothing.
+3. `cd app && npm run typecheck` passes with no errors.
+4. New `app/src/**/*.ts` filenames match `^[a-z0-9]+(-[a-z0-9]+)*\.ts$`.
