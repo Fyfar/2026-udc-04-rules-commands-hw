@@ -27,8 +27,16 @@ place instead of being re-implemented at every call site.
 
 ## How to verify
 
-1. `grep -RnE "state\.tasks\.(filter|map|find)" app/src --include="*.ts" | grep -vE "app/src/reducer.ts|app/src/selectors.ts"`
-   returns nothing.
+1. `grep -RnE "state\.tasks\.(filter|map|find|findIndex|reduce|some|every|sort|slice|flatMap)" app/src --include="*.ts" | grep -vE "app/src/(reducer|selectors)\.ts"`
+   returns nothing — the verb list covers `.reduce`/`.some`/`.every`/`.sort`,
+   not just `.filter`/`.map`/`.find`.
+   Two deliberate non-violations, so don't "fix" them: a plain read like
+   `state.tasks.length` or interpolating `state.filter` (see
+   `app/src/index.ts`) is a read, not a derivation — the rule targets
+   duplicated *filtering/derivation* logic.
+   Known blind spot: `const { tasks } = state` followed by `tasks.filter(...)`
+   evades this grep. If a diff destructures `AppState`, check that call site by
+   eye — grep is the cheap first pass, not a proof.
 2. Any new export in `app/src/selectors.ts` has a matching case in
    `app/src/selectors.test.ts` (create the file if it doesn't exist yet).
 3. `grep -n "dispatch(" app/src/selectors.ts` returns nothing.

@@ -5,8 +5,14 @@
 **Measured ON vs OFF difference — test thoroughness.** Rules-ON runs wrote
 strictly more edge-case test coverage than the matching rules-OFF run, on both
 models tested: Sonnet 5 **4 new tests ON vs 3 OFF** (19/19 vs 18/18), Haiku 4.5
-**2 new tests ON vs 1 OFF** (17/17 vs 16/16). Directly attributable to
-`testing.mdc`'s "new/changed behavior gets a new test case" instruction.
+**2 new tests ON vs 1 OFF** (17/17 vs 16/16). The direction is **consistent
+with** `testing.mdc`'s "new/changed behavior gets a new test case" instruction,
+but this is an observed correlation, not a demonstrated cause. Two reasons not
+to overclaim it: each condition ran once (n=1, see the caveat under the
+cross-run table), and the ON condition is not isolated to rule *text* — the
+agent was also told to read whatever project-context files it found (see
+Method), so "rules present" and "agent pointed at project context" move
+together here.
 
 **No architectural difference — and that is the real result, not a failed
 experiment.** Across 5 independent runs, no run reached for a state library,

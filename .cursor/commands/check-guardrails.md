@@ -26,8 +26,12 @@ Check guardrails for: $ARGUMENTS (leave blank to check every rule)
    PARTIAL/FAIL on `testing.mdc`/`selectors.mdc`, not something to wave
    through as "pre-existing, not my problem."
 4. This command is read-only/diagnostic — do not modify any file while
-   running it. If a violation is found, report it and stop; fixing it is a
-   separate, explicit task.
+   running it. A violation is never a licence to start fixing, and it is
+   never a reason to abort the run: record it and carry on through the
+   remaining rules, so one early failure can't mask every check behind it.
+   The report must cover every rule in scope. Skip a check only when running
+   it is genuinely impossible (e.g. `npm test` won't start) and say so on
+   that rule's line. Fixing anything found here is a separate, explicit task.
 
 This command exists to make every rule in `.cursor/rules/` mechanically
 checkable instead of relying on a human (or another AI) to eyeball

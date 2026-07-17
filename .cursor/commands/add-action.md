@@ -23,12 +23,13 @@ Add a new action for: $ARGUMENTS
 4. Add a colocated Arrange-Act-Assert test case to `app/src/reducer.test.ts`
    for the new `case`, plus an edge-case test if the existing variants have
    one for parity (e.g. `toggleTask`'s "no-op on unknown id" case — add the
-   equivalent for the new action if it also targets a task by id). If
-   `app/src/actions.test.ts` exists, add a case there too for the new
-   creator; if it doesn't exist yet, skip it — reducer-level coverage of the
-   creator is sufficient until one exists. Any new relative import (e.g. in
-   a freshly created test file) must end in `.js`, per
-   `.cursor/rules/module-imports.mdc`.
+   equivalent for the new action if it also targets a task by id). Add a case
+   for the new creator to `app/src/actions.test.ts` too, **creating that file
+   if it does not exist yet** — `testing.mdc` requires every non-test source
+   file to have a sibling `*.test.ts`, and `actions.ts` has none today, so the
+   first run of this command closes that known gap instead of widening it. Any
+   new relative import (e.g. in a freshly created test file) must end in
+   `.js`, per `.cursor/rules/module-imports.mdc`.
 5. Run `cd app && npm test` and `cd app && npm run typecheck` — both must
    pass with no failing or skipped tests, and no existing assertion may be
    weakened or deleted to get there.

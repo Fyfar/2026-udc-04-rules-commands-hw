@@ -76,13 +76,19 @@ colocated test. Never mutate state directly; never reach for a state library.
 
 ## Guardrails
 
-- **Do NOT edit `src/store.ts` or `src/types.ts`** unless the user's request
-  explicitly names one of those two files and asks for a change to it. They
-  are load-bearing — every reducer, action, selector, and test depends on
-  their shapes staying stable. Adding an `Action` variant means appending to
-  the existing union in `types.ts`, not restructuring `AppState`, `Task`, or
-  the `createStore`/`dispatch`/`subscribe` signatures. If a task seems to need
-  another kind of change to these files, stop and ask first.
+- **Do NOT edit `src/store.ts`** at all unless the user's request explicitly
+  names that file and asks for a change to it. It is load-bearing — every
+  reducer, action, selector, and test depends on its shape staying stable.
+- **`src/types.ts` is protected, with one standing exception.** It may be
+  touched only to (a) append a new variant to the `Action` union, and/or (b)
+  add a field to `Task`/`AppState` that a new `Action` variant needs — and
+  only when the request describes new state/behavior that requires it (e.g.
+  "add a `priority` field"). The request does **not** have to name `types.ts`
+  for this exception to apply; this is what makes the golden path below legal.
+  Any *other* change — renaming or removing an existing field, retyping an
+  existing variant's payload, or touching the `createStore`/`dispatch`/
+  `subscribe` signatures — still requires the user to name `types.ts` (or
+  `store.ts`) explicitly. If a task seems to need that, stop and ask first.
 - **Do NOT add a new dependency** (a state library, a utility belt like
   lodash, a date lib, …) — to `package.json` or via `npm install` — unless the
   user explicitly asks for that package by name. Solve it with what's already

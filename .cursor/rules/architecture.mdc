@@ -26,7 +26,11 @@ way — the exercise is specifically about this custom store.
 
 ## How to verify
 
-1. `grep -RE "redux|zustand|mobx|jotai" app/src app/package.json` returns
+1. Check real imports and real dependencies, not prose — this rule asks you to
+   write comments like "not Redux/Zustand", so a bare text search for the
+   names would eventually flag its own documentation:
+   `grep -REni "from ['\"](redux|zustand|mobx|jotai)" app/src --include="*.ts"`
+   and `grep -Ei '"(redux|zustand|mobx|jotai)":' app/package.json` both return
    nothing.
 2. Every new `Action` variant in `app/src/types.ts` has a matching `case` in
    `app/src/reducer.ts` and a creator in `app/src/actions.ts`.

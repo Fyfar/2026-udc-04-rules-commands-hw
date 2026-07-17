@@ -26,8 +26,9 @@ explicit `.js` extension (e.g. `import { reducer } from "./reducer.js"` in
 
 ## How to verify
 
-1. `grep -RnE "from \"\.\.?/[^\"]+\"" app/src --include="*.ts" | grep -v "\.js\""`
-   returns nothing — every relative import ends in `.js`.
+1. `grep -RnE "from ['\"]\.\.?/[^'\"]+['\"]" app/src --include="*.ts" | grep -vE "\.js['\"]"`
+   returns nothing — every relative import ends in `.js`. Matches both quote
+   styles, so a single-quoted `from './reducer'` can't slip through.
 2. `grep -n "\"paths\"" app/tsconfig.json` returns nothing.
 3. `app/package.json` still has `"type": "module"` unless the user explicitly
    asked to change it.

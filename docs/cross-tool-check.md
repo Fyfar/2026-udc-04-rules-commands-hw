@@ -55,24 +55,46 @@ one directory up.
   conventions in either answer** — everything stated traces to a real file;
   the gap is omission, not invention. Claude Code's answer independently
   matched every rule in every source file with no gaps found; Antigravity's
-  had several specific, real omissions (below), not just the two originally
-  noted.
-- **Antigravity omissions found on full re-check:**
+  had four real omissions (below) — plus a fifth item first logged as an
+  omission that turned out to be a defect in our own `AGENTS.md`, retracted
+  below. Worth noting against Claude Code as well: it recited the correct
+  `types.ts` rule from `.claude/rules/`, but never flagged that `AGENTS.md`
+  contradicted it. Neither tool caught the inconsistency — that took a third
+  reviewer.
+- **Antigravity omissions found on full re-check** (four confirmed, one
+  retracted):
   - Didn't mention **lint is not configured** — a guardrail `app/AGENTS.md`
     explicitly calls out ("don't invent a lint command"). Claude Code's
     answer surfaced this.
   - Named only Redux/Zustand/MobX as forbidden state libraries, dropping
     Jotai from the source's four-item list (`architecture.md` names all four).
-  - **Understated the `types.ts` protected-file exception.** It said
-    edits are allowed only "except for appending to the Action union." The
-    actual rule (`.claude/rules/do-not-touch.md`, mirrored in both
-    `AGENTS.md` files) has a second carve-out Antigravity's answer dropped:
-    adding a new `Task`/`AppState` field that a new `Action` variant needs.
-    This is the more consequential omission of the three — it's the exact
-    nuance `do-not-touch.md` calls "the one standing exception," and getting
-    it wrong in either direction (too narrow or too broad) changes what a
-    future prompt could get away with. Claude Code's answer stated both
-    carve-outs correctly.
+  - **`types.ts` exception — retracted as an omission; it was our bug, not
+    Antigravity's.** Antigravity said `types.ts` edits are allowed only
+    "except for appending to the Action union." This was first logged here as
+    its most consequential omission, against `do-not-touch.md`'s *second*
+    carve-out (adding a `Task`/`AppState` field that a new `Action` variant
+    needs), and this write-up claimed the carve-out was "mirrored in both
+    `AGENTS.md` files." **Both of those statements were wrong.** Antigravity
+    reads only `AGENTS.md`, and `app/AGENTS.md` as it stood at run time said
+    "do NOT edit `src/store.ts` or `src/types.ts` unless the user's request
+    explicitly names one of those two files" — it never carried the second
+    carve-out at all, and its "don't touch without naming it" phrasing even
+    contradicted the golden path directly below it, which tells you to add an
+    `Action` variant in `types.ts`. Antigravity reproduced its source
+    faithfully; **the baseline was the thing that was wrong**, and Claude Code
+    only looked better because it reads `.claude/rules/` where the correct
+    rule lived.
+    **This is the cross-tool check earning its keep.** Pointing a second tool
+    that sees *only* the portable artifact at this repo surfaced real drift
+    between `AGENTS.md` and `.claude/rules/` — a class of defect no
+    single-tool run can find, because the tool with the good rule file never
+    exercises the gap. It also cuts against this doc's own headline: the
+    portable artifact isn't just less discoverable than the rule files, it had
+    silently fallen out of sync with them.
+    (Found by CodeRabbit on PR #2, after these runs; `app/AGENTS.md` has since
+    been corrected to state both carve-outs. The Antigravity answer quoted
+    above predates that fix and has not been re-run against the corrected
+    file.)
   - Didn't mention selectors must be **pure** (no `dispatch`, no mutation,
     no I/O) — `selectors.md` rule 3. Only described that reads should go
     through a selector, not the purity constraint on selectors themselves.
@@ -103,11 +125,13 @@ correctly — it summarized all 8 rule files (`architecture.md`,
 the nuanced `types.ts` append-only exception and the exact `lib/text.ts` API,
 and confirmed it would follow them going forward.
 
-This means the *content* of `.claude/rules/*.md` is fully tool-agnostic
-Markdown — the gap is purely auto-discovery, not comprehension or
-compatibility. A tool with no native rules convention can still consume this
-same content if the user (or an `AGENTS.md` pointer, e.g. "see
-`.claude/rules/` for detailed rules") tells it where to look.
+This means the *content* of `.claude/rules/*.md` needed no Antigravity-specific
+dialect to be understood — for this tool, the gap was auto-discovery, not
+comprehension. Scope of the claim: this was established for Antigravity 2.0
+only. It is evidence that plain-Markdown rules are *portable in principle*, not
+proof that any arbitrary tool will read them — a tool with no native rules
+convention still has to be pointed at the folder by the user or by an
+`AGENTS.md` pointer (e.g. "see `.claude/rules/` for detailed rules").
 
 ## Bonus experiment: does Antigravity auto-load `.agent/rules/`?
 
@@ -170,9 +194,11 @@ repo-root copy when only `app/` was opened. `.cursor/rules/*.mdc` and
 but a team standardizing on a single cross-tool contract should treat
 `AGENTS.md` as the source of truth and the `.mdc`/`.claude` rule dirs as
 optional per-tool enhancements layered on top. Both bonus experiments show the
-gap is auto-discovery, not content compatibility — the same Markdown works
-everywhere once a tool is told where to look (even Antigravity's own
-documented `.agent/rules/` convention turned out not to be auto-wired in
-practice, which only reinforces testing this kind of claim empirically rather
-than trusting docs). `AGENTS.md` remains the one artifact confirmed to load
+gap is auto-discovery, not content compatibility — in **both tools tested**,
+the same Markdown was understood once the tool was told where to look (even
+Antigravity's own documented `.agent/rules/` convention turned out not to be
+auto-wired in practice, which only reinforces testing this kind of claim
+empirically rather than trusting docs). Two tools are not a general result, so
+read this as "portable across the two tools verified here," not "works
+everywhere." `AGENTS.md` remains the one artifact confirmed to load
 automatically, with no prompting, in both tools tested.

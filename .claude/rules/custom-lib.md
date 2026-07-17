@@ -26,8 +26,11 @@ don't.
 
 ## How to verify
 
-1. `grep -RE 'from "[^"]*lib/text(\.js)?"' app/src | grep -vE "slugify|truncate|normalizeSpaces"`
-   finds no import of a name outside the three above.
+1. Check each imported **name**, not the whole import line — a mixed
+   `import { slugify, capitalize }` contains an allowed name, so a line-level
+   `grep -v` would filter it out and hide `capitalize`:
+   `grep -REn 'from "[^"]*lib/text(\.js)?"' app/src --include="*.ts" -h | sed -E 's/.*import[[:space:]]*\{([^}]*)\}.*/\1/' | tr ',' '\n' | tr -d ' ' | grep -vE '^(slugify|truncate|normalizeSpaces|type)?$'`
+   returns nothing.
 2. `app/src/lib/text.ts` exports exactly `slugify`, `truncate`,
    `normalizeSpaces`, plus any new function added with its own test.
 3. No `lodash`/`underscore` dependency appears in `app/package.json`.
