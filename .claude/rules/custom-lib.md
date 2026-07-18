@@ -28,9 +28,11 @@ don't.
 
 1. Check each imported **name**, not the whole import line — a mixed
    `import { slugify, capitalize }` contains an allowed name, so a line-level
-   `grep -v` would filter it out and hide `capitalize`:
-   `grep -REn 'from "[^"]*lib/text(\.js)?"' app/src --include="*.ts" -h | sed -E 's/.*import[[:space:]]*\{([^}]*)\}.*/\1/' | tr ',' '\n' | tr -d ' ' | grep -vE '^(slugify|truncate|normalizeSpaces|type)?$'`
-   returns nothing.
+   `grep -v` would filter it out and hide `capitalize`. `rg -U` also spans
+   multi-line imports and matches both quote styles:
+   `rg -UNoP --no-filename "import\s+(?:type\s+)?\{([^}]*)\}\s+from\s+['\"][^'\"]*lib/text(?:\.js)?['\"]" app/src -g '*.ts' -r '$1' | grep -oE '[A-Za-z_][A-Za-z0-9_]*' | grep -vE '^(slugify|truncate|normalizeSpaces|type|as)$'`
+   returns nothing (an aliased import like `slugify as s` surfaces the alias —
+   eyeball those).
 2. `app/src/lib/text.ts` exports exactly `slugify`, `truncate`,
    `normalizeSpaces`, plus any new function added with its own test.
 3. No `lodash`/`underscore` dependency appears in `app/package.json`.
