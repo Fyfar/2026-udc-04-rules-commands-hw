@@ -33,6 +33,14 @@ explicit `.js` extension (e.g. `import { reducer } from "./reducer.js"` in
    mask it. Covers both quote styles and every form (`from`, side-effect
    `import "./x"`, dynamic `import("./x")`, re-export `... from "./x"`), so
    none can slip through.
-2. `grep -n "\"paths\"" app/tsconfig.json` returns nothing.
-3. `app/package.json` still has `"type": "module"` unless the user explicitly
+2. `rg -oNP --no-filename "(?:from|import)\s*\(?\s*['\"](@/[^'\"]+)['\"]" app/src -g "*.ts"`
+   returns nothing — no import uses a `@/` path alias.
+3. `comm -23 <(rg -oNP --no-filename "(?:from|import)\s*\(?\s*['\"]([^'\"]+)['\"]" app/src -g "*.ts" -r '$1' | grep -vE "^\.\.?/" | sed -E 's#^(@[^/]+/[^/]+|[^/]+).*#\1#' | sort -u) <(sed -n '/"dependencies"[[:space:]]*:[[:space:]]*{/,/}/p;/"devDependencies"[[:space:]]*:[[:space:]]*{/,/}/p' app/package.json | grep -oE '"[A-Za-z0-9@._/-]+":[[:space:]]*"[^"]*"' | grep -oE '^"[A-Za-z0-9@._/-]+"' | tr -d '"' | sort -u)`
+   returns nothing — every non-relative (bare) specifier resolves to a name
+   actually listed in `app/package.json`'s `dependencies`/`devDependencies`.
+   Catches an internal file imported without its `./` prefix (e.g. `from
+   "reducer"`) and any unapproved/unlisted package, in addition to `@/`
+   aliases already caught by check 2.
+4. `grep -n "\"paths\"" app/tsconfig.json` returns nothing.
+5. `app/package.json` still has `"type": "module"` unless the user explicitly
    asked to change it.

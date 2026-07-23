@@ -33,9 +33,12 @@ don't.
    whether it's written as `lib/text`, `./text`, or `../lib/text` (any path
    ending in `text`/`text.js`), so a local import from inside `lib/` itself
    (e.g. `lib/text.test.ts` importing `./text.js`) isn't missed:
-   `rg -UNoP --no-filename "import\s+(?:type\s+)?\{([^}]*)\}\s+from\s+['\"][^'\"]*/text(?:\.js)?['\"]" app/src -g '*.ts' -r '$1' | grep -oE '[A-Za-z_][A-Za-z0-9_]*' | grep -vE '^(slugify|truncate|normalizeSpaces|type|as)$'`
-   returns nothing (an aliased import like `slugify as s` surfaces the alias —
-   eyeball those).
+   `rg -UNoP --no-filename "import\s+(?:type\s+)?\{([^}]*)\}\s+from\s+['\"][^'\"]*/text(?:\.js)?['\"]" app/src -g '*.ts' -r '$1' | tr ',' '\n' | sed -E 's/^[[:space:]]*(type[[:space:]]+)?([A-Za-z_][A-Za-z0-9_]*)[[:space:]]+as[[:space:]]+[A-Za-z_][A-Za-z0-9_]*[[:space:]]*$/\2/' | grep -oE '[A-Za-z_][A-Za-z0-9_]*' | grep -vE '^(slugify|truncate|normalizeSpaces|type)$'`
+   returns nothing — each `name as alias` specifier is collapsed to just
+   `name` before checking, so a benign alias (`slugify as s`) no longer needs
+   manual eyeballing, while a disallowed name hidden behind an
+   allowed-looking alias (`capitalize as slugify`) still surfaces
+   `capitalize`.
 2. `app/src/lib/text.ts` exports exactly `slugify`, `truncate`,
    `normalizeSpaces`, plus any new function added with its own test.
 3. No `lodash`/`underscore` dependency appears in `app/package.json`.
