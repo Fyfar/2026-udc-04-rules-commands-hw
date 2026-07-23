@@ -39,6 +39,13 @@ don't.
    manual eyeballing, while a disallowed name hidden behind an
    allowed-looking alias (`capitalize as slugify`) still surfaces
    `capitalize`.
-2. `app/src/lib/text.ts` exports exactly `slugify`, `truncate`,
+2. Named imports aren't the only way in — `import * as text from '.../text.js'`
+   has no `{ }` list for check 1 to inspect, so a forbidden call surfaces only
+   as member access (`text.capitalize(...)`) later in the file. Resolve each
+   namespace alias, then check what's called on it:
+   `for a in $(rg -oNP --no-filename "import\s+\*\s+as\s+([A-Za-z_][A-Za-z0-9_]*)\s+from\s+['\"][^'\"]*/text(?:\.js)?['\"]" app/src -g '*.ts' -r '$1' | sort -u); do rg -oNP --no-filename "\b${a}\.([A-Za-z_][A-Za-z0-9_]*)\s*\(" app/src -g '*.ts' -r '$1'; done | grep -vE '^(slugify|truncate|normalizeSpaces)$'`
+   returns nothing — no namespace-imported call uses a name outside the
+   allowed three, regardless of what alias the import used.
+3. `app/src/lib/text.ts` exports exactly `slugify`, `truncate`,
    `normalizeSpaces`, plus any new function added with its own test.
-3. No `lodash`/`underscore` dependency appears in `app/package.json`.
+4. No `lodash`/`underscore` dependency appears in `app/package.json`.

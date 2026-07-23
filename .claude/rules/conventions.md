@@ -25,9 +25,13 @@ immutability guarantee intact.
 ## How to verify
 
 1. `grep -R "export default" app/src` returns nothing.
-2. `grep -REn "(:|<|,|\(|as )[[:space:]]*any\b|\bany\[\]|@ts-ignore" app/src --include="*.ts"`
+2. `for f in $(find app/src -name '*.ts'); do sed -E 's#//.*$##' "$f" | grep -nE "(:|<|,|\(|=|\||&|as )[[:space:]]*any\b|\bany\[\]|@ts-ignore" | sed "s#^#$f:#"; done`
    returns nothing — matches the `any` token in every position (`: any`,
-   `as any`, `Array<any>`, `any[]`, `Record<string, any>`), not just `: any`,
-   while ignoring the English word "any" in comments.
+   `as any`, `Array<any>`, `any[]`, `Record<string, any>`, `<T = any>`,
+   `Foo | any`), not just `: any`. Strips `//` line comments first, so a
+   comment like `// note: any input` (which contains `: any` as plain text)
+   doesn't false-positive — this only covers `//` comments, not `/** */`
+   blocks, so a JSDoc block that happens to contain one of these patterns
+   still needs an eyeball.
 3. `cd app && npm run typecheck` passes with no errors.
 4. New `app/src/**/*.ts` filenames match `^[a-z0-9]+(-[a-z0-9]+)*\.ts$`.

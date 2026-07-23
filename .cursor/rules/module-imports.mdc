@@ -42,5 +42,8 @@ explicit `.js` extension (e.g. `import { reducer } from "./reducer.js"` in
    "reducer"`) and any unapproved/unlisted package, in addition to `@/`
    aliases already caught by check 2.
 4. `grep -n "\"paths\"" app/tsconfig.json` returns nothing.
-5. `app/package.json` still has `"type": "module"` unless the user explicitly
+5. `grep -nE "\"(module|moduleResolution)\":\s*\"(ESNext|Bundler)\"" app/tsconfig.json`
+   returns both lines (`"module": "ESNext"` and `"moduleResolution":
+   "Bundler"`) unless the user explicitly asked to change one of them.
+6. `app/package.json` still has `"type": "module"` unless the user explicitly
    asked to change it.
