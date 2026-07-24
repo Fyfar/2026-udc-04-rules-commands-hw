@@ -41,13 +41,17 @@ explicit `.js` extension (e.g. `import { reducer } from "./reducer.js"` in
    "reducer"`) and any unapproved/unlisted package, in addition to `@/`
    aliases already caught by check 2.
 4. `grep -n "\"paths\"" app/tsconfig.json` returns nothing.
-5. `grep -nE '"module":[[:space:]]*"ESNext"' app/tsconfig.json` and
-   `grep -nE '"moduleResolution":[[:space:]]*"Bundler"' app/tsconfig.json`
-   each return exactly one line, unless the user explicitly asked to change
-   that value. Checked as two separate exact-value matches, not one combined
+5. `grep -vE '^[[:space:]]*//' app/tsconfig.json | grep -cE '"module":[[:space:]]*"ESNext"'`
+   and `grep -vE '^[[:space:]]*//' app/tsconfig.json | grep -cE
+   '"moduleResolution":[[:space:]]*"Bundler"'` each print exactly `1`, unless
+   the user explicitly asked to change that value. Filtering out
+   `//`-commented lines first stops a disabled/commented-out copy of the
+   value from padding the count to a false pass, or a live value from being
+   masked by a leftover commented copy into a false failure. Checked as two
+   separate exact-count assertions, not one combined
    `(module|moduleResolution)` / `(ESNext|Bundler)` alternation — a combined
    check would also match a swapped/wrong pairing (e.g. `"module":
    "Bundler"` with `"moduleResolution": "ESNext"`) since either key matching
-   either value is enough to print two lines.
+   either value is enough to print a count of two.
 6. `app/package.json` still has `"type": "module"` unless the user explicitly
    asked to change it.
